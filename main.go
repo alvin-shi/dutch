@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"os"
-	"strconv"
 )
 
 func main() {
@@ -19,24 +18,6 @@ func main() {
 	case "print":
 		print()
 	}
-}
-
-func add(args []string) {
-	if len(args) < 3 {
-		fmt.Println("Add needs item, cost and at least one contributor")
-		return
-	}
-
-	item := args[0]
-	cost, error := strconv.ParseFloat(args[1], 64)
-	if error != nil {
-		fmt.Println("error converting cost to float:", args[1])
-		return
-	}
-	contributors := args[2:]
-
-	portion := cost / float64(len(contributors))
-	fmt.Println(item, "cost per person:", portion)
 }
 
 func print() {
