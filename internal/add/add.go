@@ -1,4 +1,4 @@
-package main
+package add
 
 import (
 	"errors"
@@ -9,7 +9,7 @@ import (
 	"strings"
 )
 
-func add(args []string) {
+func Add(args []string) {
 	if ok, error := validate(args); !ok {
 		fmt.Println(error.Error())
 		return

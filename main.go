@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+
+	"github.com/alvin-shi/dutch/internal/add"
 )
 
 func main() {
@@ -14,7 +16,7 @@ func main() {
 
 	switch args[0] {
 	case "add":
-		add(tail(args))
+		add.Add(tail(args))
 	case "print":
 		print()
 	}
