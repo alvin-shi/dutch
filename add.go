@@ -3,41 +3,65 @@ package main
 import (
 	"errors"
 	"fmt"
+	"os"
+	"slices"
 	"strconv"
+	"strings"
 )
 
-type breakdown struct {
-	Item         string
-	Cost         float64
-	Contributors []string
-}
-
 func add(args []string) {
-	data, error := parseArgs(args)
-	if error != nil {
-		fmt.Println(error)
+	if ok, error := validate(args); !ok {
+		fmt.Println(error.Error())
+		return
 	}
 
-	portion := data.Cost / float64(len(data.Contributors))
-	fmt.Println(data.Item, "cost per person:", portion)
+	store(args)
 }
 
-func parseArgs(args []string) (breakdown, error) {
+func validate(args []string) (bool, error) {
 	if len(args) < 3 {
-		return breakdown{}, errors.New("Add needs item, cost and at least one contributor")
+		return false, errors.New("Add needs item, cost and at least one contributor")
 	}
 
-	item := args[0]
-	cost, error := strconv.ParseFloat(args[1], 64)
+	_, error := strconv.ParseFloat(args[1], 64)
 	if error != nil {
 		errorString := fmt.Sprintf("error converting cost to float %v", args[1])
-		return breakdown{}, errors.New(errorString)
+		return false, errors.New(errorString)
 	}
-	contributors := args[2:]
 
-	return breakdown{
-		Item:         item,
-		Cost:         cost,
-		Contributors: contributors,
-	}, nil
+	return true, nil
+}
+
+func store(args []string) {
+	fp, error := createAndOrOpen()
+	if error != nil {
+		fmt.Println(error.Error())
+		return
+	}
+	defer fp.Close()
+
+	fmt.Println("writing to file:", fp.Name())
+	_, err := fp.Write(fmt.Appendln([]byte(strings.Join(args, " "))))
+	if err != nil {
+		fmt.Println(err.Error())
+	}
+}
+
+func createAndOrOpen() (*os.File, error) {
+	entries, error := os.ReadDir(os.TempDir())
+	if error != nil {
+		return nil, error
+	}
+
+	index := slices.IndexFunc(entries, func(entry os.DirEntry) bool {
+		return strings.HasPrefix(entry.Name(), "dutch_state")
+	})
+
+	if index < 0 {
+		fmt.Println("creating new file")
+		return os.CreateTemp("", "dutch_state")
+	}
+
+	filepath := fmt.Sprintf("/tmp/%v", entries[index].Name())
+	return os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 }
