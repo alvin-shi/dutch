@@ -3,10 +3,10 @@ package add
 import (
 	"errors"
 	"fmt"
-	"os"
-	"slices"
 	"strconv"
 	"strings"
+
+	"github.com/alvin-shi/dutch/internal/utils"
 )
 
 func Add(args []string) {
@@ -33,35 +33,15 @@ func validate(args []string) (bool, error) {
 }
 
 func store(args []string) {
-	fp, error := createAndOrOpen()
+	fp, error := utils.CreateAndOrOpen()
 	if error != nil {
 		fmt.Println(error.Error())
 		return
 	}
 	defer fp.Close()
 
-	fmt.Println("writing to file:", fp.Name())
 	_, err := fp.Write(fmt.Appendln([]byte(strings.Join(args, " "))))
 	if err != nil {
 		fmt.Println(err.Error())
 	}
-}
-
-func createAndOrOpen() (*os.File, error) {
-	entries, error := os.ReadDir(os.TempDir())
-	if error != nil {
-		return nil, error
-	}
-
-	index := slices.IndexFunc(entries, func(entry os.DirEntry) bool {
-		return strings.HasPrefix(entry.Name(), "dutch_state")
-	})
-
-	if index < 0 {
-		fmt.Println("creating new file")
-		return os.CreateTemp("", "dutch_state")
-	}
-
-	filepath := fmt.Sprintf("/tmp/%v", entries[index].Name())
-	return os.OpenFile(filepath, os.O_APPEND|os.O_WRONLY, os.ModeAppend)
 }
