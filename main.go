@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/alvin-shi/dutch/internal/add"
+	"github.com/alvin-shi/dutch/internal/print"
 )
 
 func main() {
@@ -18,13 +19,12 @@ func main() {
 	case "add":
 		add.Add(tail(args))
 	case "print":
-		print()
+		print.Print()
+	default:
+		fmt.Println("command not found")
 	}
 }
 
-func print() {
-	fmt.Println("Print!")
-}
 func tail[T any](slice []T) []T {
 	return slice[1:]
 }
